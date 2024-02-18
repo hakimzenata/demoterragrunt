@@ -1,0 +1,61 @@
+name: Terraform Pipeline
+
+on:
+  push:
+    branches:
+    - master
+
+jobs:
+  terraform_plan:
+    name: Terraform Plan
+    runs-on: ubuntu-latest
+    stage: Plan
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v1
+      with:
+        terraform_version: 1.1.0
+
+    - name: Terraform Init
+      run: terraform init
+
+    - name: Terraform Plan
+      run: terraform plan
+
+  terraform_apply:
+    name: Terraform Apply
+    runs-on: ubuntu-latest
+    stage: Apply
+    needs: terraform_plan
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v1
+      with:
+        terraform_version: 1.1.0
+
+    - name: Terraform Apply
+      run: terraform apply -auto-approve
+
+  terraform_destroy:
+    name: Terraform Destroy
+    runs-on: ubuntu-latest
+    stage: Destroy
+    needs: terraform_apply
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v1
+      with:
+        terraform_version: 1.1.0
+
+    - name: Terraform Destroy
+      run: terraform destroy -auto-approve
